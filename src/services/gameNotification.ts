@@ -63,6 +63,8 @@ export const upSertPlayerToGame = (gameConnections: gameConnection[], playerId: 
     })
   }
   else {
+    //end prev connection
+    foundPlayer.connection.response.end()
     //refresh the new connection to recieve updates
     foundPlayer.connection.request = req;
     foundPlayer.connection.response = res;
@@ -78,14 +80,16 @@ gameEvents.on(GAME_EVENTS.FINISHED, ({ gameId, playerId }) => {
   //remove player connection;
   const gameConnections = subscribers[gameId];
   if (gameConnections && gameConnections.length) {
+    console.log("deleting player Connection")
     const connection = getPlayerConnection(gameId, playerId);
     if (connection) {
       connection.response.end();
       subscribers[gameId] = gameConnections.filter((p) => p.playerId !== playerId);
+      if(subscribers[gameId].length === 0){
+        console.log("deleting Game Connection")
+        //delete the whole game connection if no player connection
+        delete subscribers[gameId];
+      }
     }
-  }
-  else {
-    //delete the whole game connection if no player connection
-    delete subscribers[gameId];
   }
 })

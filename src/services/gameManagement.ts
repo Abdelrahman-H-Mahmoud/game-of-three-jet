@@ -10,7 +10,7 @@ export const startGame = (email: string): GameState => {
   if (game.players.length === config.numberOfPlayersPerGame) {
     changeGameStatus(game, GameStatus.IN_PROGRESS);
     game.players.forEach(p => {
-      notifyPlayer(game.id, p.id, GAME_EVENTS.STARTED, { number: game.number })
+      notifyPlayer(game.id, p.id, GAME_EVENTS.STARTED, { number: game.number, isTurn: game.currentPlayerId === p.id })
     });
   }
   return { playerId: player.id, gameId: game.id, number: game.number, gameStatus: game.gameStatus, isTurn: game.currentPlayerId === player.id }
