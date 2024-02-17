@@ -1,12 +1,14 @@
-import { GameState, GameStatus, Player } from "../types";
+import { GameState, GameStatus } from "../types";
 import { assignToGame, getGameById, getGameByPlayerId } from "./game";
+import { notifyGameFinished, notifyGameStarted, notifyPlayerTurn } from "./notification";
 import { createPlayer } from "./player"
 
 export const startGame = (email: string): GameState => {
   const player = createPlayer(email);
   const game = assignToGame(player);
   if (game.gameStatus === GameStatus.IN_PROGRESS) {
-    //dispatch a notification for the first player that game started.
+    notifyGameStarted(game.id, game.player1?.id ?? "");
+    notifyGameStarted(game.id, game.player2?.id ?? "");
   }
   return { playerId: player.id, gameId: game.id, number: game.number, gameStatus: game.gameStatus, isTurn: game.currentPlayerId === player.id }
 }
@@ -22,9 +24,11 @@ export const makeMove = (number: number, gameId: string, playerId: string): Game
       game.currentPlayerId = null;
       game.gameStatus = GameStatus.FINISHED;
       game.winnerId = playerId;
+      notifyGameFinished(game.id);
     }
     else {
       game.currentPlayerId = (game.player1?.id === playerId ? game.player2?.id : game.player1?.id) || null
+      notifyPlayerTurn(gameId, game.currentPlayerId ?? "", game);
     }
   }
   return {
@@ -41,11 +45,11 @@ export const getGameState = (playerId: string): GameState | null => {
   if (!game) {
     return null;
   }
-  return { 
-    playerId, 
-    gameId: game.id, 
-    number: game.number, 
-    gameStatus: game.gameStatus, 
+  return {
+    playerId,
+    gameId: game.id,
+    number: game.number,
+    gameStatus: game.gameStatus,
     isTurn: game.currentPlayerId === playerId,
     winnerId: game.winnerId
   }
