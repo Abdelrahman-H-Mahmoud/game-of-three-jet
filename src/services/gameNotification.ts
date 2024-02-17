@@ -27,22 +27,18 @@ export const subscribeToGameChanges = (gameId: string, playerId: string, req: Re
   });
   subscribers[gameId] ??= [];
   upSertPlayerToGame(subscribers[gameId], playerId, req, res);
+  sendMessage(res,GAME_EVENTS.JOINED,{message: "Joined The Game"});
 
-  res.write(JSON.stringify({
-    event: GAME_EVENTS.JOINED,
-    message: "Joined The Game"
-  }));
   req.on('close', () => res.end('OK'))
 }
-
+const sendMessage = (res:Response, event:GAME_EVENTS, data?:any)=>{
+  res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
 
 export const notifyPlayer = (gameId: string, playerId: string, event: GAME_EVENTS, data?: Record<string, any>) => {
   const connection = getPlayerConnection(gameId, playerId);
   if (connection) {
-    connection.response.write(JSON.stringify({
-      event: event,
-      data: data
-    }));
+    sendMessage(connection.response,event,data);
     gameEvents.emit(event, { gameId, playerId });
   }
 }

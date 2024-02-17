@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { subscribeToGameChanges } from "../services/notification";
+import { subscribeToGameChanges } from "../services/gameNotification";
 
 const subscribeRouter = Router();
 

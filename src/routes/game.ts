@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { getGameState, makeMove, startGame } from "../services/gameManagement";
-import { getNotificationUrl } from "../services/notification";
+import { getNotificationUrl } from "../services/gameNotification";
 
 const gameRouter = Router();
 
