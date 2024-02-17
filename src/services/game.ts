@@ -5,6 +5,10 @@ import { generateUUID } from "../utils/uuid";
 let games: Game[] = []
 
 export const assignToGame = (player: Player) => {
+  const existingGame = checkExistingGame(player.id);
+  if (existingGame) {
+    return existingGame;
+  }
   const game = getAvailableGame();
   if (!game) {
     const game = createGame(player);
@@ -46,4 +50,13 @@ export const changeGameStatus = (game: Game, newStatus: GameStatus) => {
 
 export const flushGames = () => {
   games = [];
+}
+
+export const checkExistingGame = (playerId) => {
+  return games.find((g) => {
+    if (g.gameStatus === GameStatus.IN_PROGRESS || g.gameStatus === GameStatus.PENDING) {
+      return g.players.find(p => p.id === playerId);
+    }
+    return false;
+  });
 }
