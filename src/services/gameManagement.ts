@@ -29,7 +29,7 @@ export const makeMove = (number: number, gameId: string, playerId: string): Game
     }
     else {
       game.currentPlayerId = getNextPlayerTurn(game.players, game.currentPlayerId).id
-      notifyPlayerTurn(gameId, game.currentPlayerId ?? "", game);
+      notifyPlayerTurn(gameId, game.currentPlayerId ?? "", { number: game.number });
     }
   }
   return {
