@@ -1,0 +1,169 @@
+openapi: 3.0.1
+info:
+  title: Game Of Three
+  version: 1.0.0
+  description: A Simple Game.
+paths:
+  /game/start:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/gameStartData'
+
+        '400':
+          description: Default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/gameStartInvalidData'
+
+  /game/move/{gameId}/player/{playerId}:
+    post:
+      parameters:
+        - name: gameId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The game's uuid
+          example: ea477fec-34d9-46b5-9309-6f4dc42b29b1
+        - name: playerId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The player's uuid
+          example: ea477fec-34d9-46b5-9309-6f4dc42b29b1
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                number:
+                  type: number
+      responses:
+        '200':
+          description: Default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/makeMoveData'
+
+        '400':
+          description: Default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/makeMoveInvalidData'
+
+components:
+  schemas:
+    gameStartData:
+      type: object
+      properties:
+        joinLink:
+          type: string
+        state:
+          type: object
+          properties:
+            playerId:
+              type: string
+              description: player unique id in uuid format
+              example: '0607efe6-7620-48f4-bf1a-0502c83b1ed3'
+            gameId:
+              type: string
+              description: game unique id in uuid format
+              example: '0607efe6-7620-48f4-bf1a-0502c83b1ed3'
+            number:
+              type: number
+              description: the game number
+              example: '13'
+            gameStatus:
+              type: string
+              enum:
+                - PENDING
+                - IN_PROGRESS
+                - FINISHED
+            isTurn:
+              type: boolean
+
+          required:
+            - playerId
+            - gameId
+            - gameStatus
+            - number
+            - isTurn
+      required:
+        - joinLink
+        - state
+    
+    gameStartInvalidData:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    
+    makeMoveData:
+      type: object
+      properties:
+        playerId:
+          type: string
+          description: player unique id in uuid format
+          example: '0607efe6-7620-48f4-bf1a-0502c83b1ed3'
+        gameId:
+          type: string
+          description: game unique id in uuid format
+          example: '0607efe6-7620-48f4-bf1a-0502c83b1ed3'
+        number:
+          type: number
+          description: the game number
+          example: '13'
+        gameStatus:
+          type: string
+          enum:
+            - PENDING
+            - IN_PROGRESS
+            - FINISHED
+        isTurn:
+          type: boolean
+      required:
+        - playerId
+        - gameId
+        - number
+        - gameStatus
+        - isTurn
+    
+    makeMoveInvalidData:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+  
+servers:
+  - url: 'http://{host}'
+    variables:
+      host:
+        enum:
+          - localhost:3000
+        default: localhost:3000
