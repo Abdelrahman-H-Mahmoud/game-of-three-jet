@@ -73,5 +73,5 @@ export const notifyGameFinished = (gameId: string) => {
 
 
 export const getNotificationUrl = (gameId: string, playerId: string) => {
-  return `${config.notificationURL}/subscribe/${gameId}/player/${playerId}`;
+  return `${config.notificationURL}/${gameId}/player/${playerId}`;
 }
