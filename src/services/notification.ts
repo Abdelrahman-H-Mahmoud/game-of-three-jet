@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { config } from "../config";
 
 interface gameConnection {
   playerId: string,
@@ -71,6 +72,6 @@ export const notifyGameFinished = (gameId: string) => {
 }
 
 
-export const getNotificationUrl = (gameId: string, userId: string) => {
-  return `${config.notificationURL}/subscribe/${gameId}/player/${userId}`;
+export const getNotificationUrl = (gameId: string, playerId: string) => {
+  return `${config.notificationURL}/subscribe/${gameId}/player/${playerId}`;
 }

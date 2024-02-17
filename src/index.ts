@@ -1,6 +1,7 @@
 import express from 'express';
 import gameRouter from './routes/game';
 import subscribeRouter from './routes/subsciber';
+import { config } from './config';
 
 const app = express();
 
