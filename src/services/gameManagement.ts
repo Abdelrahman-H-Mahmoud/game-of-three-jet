@@ -1,4 +1,4 @@
-import { GameState, GameStatus } from "../types";
+import { GameState, GameStatus, Player } from "../types";
 import { assignToGame, getGameById, getGameByPlayerId } from "./game";
 import { notifyGameFinished, notifyGameStarted, notifyPlayerTurn } from "./notification";
 import { createPlayer } from "./player"
@@ -7,8 +7,9 @@ export const startGame = (email: string): GameState => {
   const player = createPlayer(email);
   const game = assignToGame(player);
   if (game.gameStatus === GameStatus.IN_PROGRESS) {
-    notifyGameStarted(game.id, game.player1?.id ?? "");
-    notifyGameStarted(game.id, game.player2?.id ?? "");
+    game.players.forEach(p => {
+      notifyGameStarted(game.id, p.id)
+    });
   }
   return { playerId: player.id, gameId: game.id, number: game.number, gameStatus: game.gameStatus, isTurn: game.currentPlayerId === player.id }
 }
@@ -27,7 +28,7 @@ export const makeMove = (number: number, gameId: string, playerId: string): Game
       notifyGameFinished(game.id);
     }
     else {
-      game.currentPlayerId = (game.player1?.id === playerId ? game.player2?.id : game.player1?.id) || null
+      game.currentPlayerId = getNextPlayerTurn(game.players, game.currentPlayerId).id
       notifyPlayerTurn(gameId, game.currentPlayerId ?? "", game);
     }
   }
@@ -38,6 +39,11 @@ export const makeMove = (number: number, gameId: string, playerId: string): Game
     gameStatus: game.gameStatus,
     isTurn: game.currentPlayerId === playerId
   }
+}
+
+export const getNextPlayerTurn = (players: Player[], currentPlayerId: string): Player => {
+  const index = players.findIndex(p => p.id === currentPlayerId);
+  return index === players.length - 1 ? players[0] : players[index + 1];
 }
 
 export const getGameState = (playerId: string): GameState | null => {

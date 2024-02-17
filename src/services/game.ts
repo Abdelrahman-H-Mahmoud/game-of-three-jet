@@ -1,3 +1,4 @@
+import { config } from "../config";
 import { Game, GameStatus, Player } from "../types";
 import { generateNumer } from "../utils/generateNumber";
 import { generateUUID } from "../utils/uuid";
@@ -10,8 +11,9 @@ export const assignToGame = (player: Player) => {
     const game = createGame(player);
     return game;
   }
-  game.player2 = player;
-  game.gameStatus = GameStatus.IN_PROGRESS;
+  game.players.push(player);
+  if (game.players.length === config.numberOfPlayersPerGame)
+    game.gameStatus = GameStatus.IN_PROGRESS;
   return game;
 }
 
@@ -19,8 +21,7 @@ export const assignToGame = (player: Player) => {
 export const createGame = (player: Player): Game => {
   const game = {
     id: generateUUID(),
-    player1: player,
-    player2: null,
+    players: [player],
     currentPlayerId: player.id,
     gameStatus: GameStatus.PENDING,
     number: generateNumer()
@@ -38,7 +39,7 @@ export const getGameById = (id: string): Game | undefined => {
 }
 
 export const getGameByPlayerId = (playerId: string): Game | undefined => {
-  return games.find(x => x.player1?.id === playerId || x.player2?.id === playerId);
+  return games.find(x => x.players.find((p) => p.id === playerId));
 }
 
 export const flushGames = () => {

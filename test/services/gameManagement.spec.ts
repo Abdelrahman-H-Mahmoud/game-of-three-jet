@@ -2,18 +2,24 @@ import { flushGames } from "../../src/services/game";
 import { getGameState, makeMove, startGame } from "../../src/services/gameManagement";
 import { flushPlayers } from "../../src/services/player";
 import { GameStatus } from "../../src/types";
-
+import * as notificationService from "../../src/services/notification"
+import { config } from "../../src/config";
 jest.mock("../../src/utils/generateNumber", () => {
   return {
     generateNumer: () => 5
   }
-})
+});
+
+jest.mock("../../src/services/notification");
+
 describe("Game Management Service", () => {
   beforeEach(() => {
     flushGames();
     flushPlayers();
+    jest.clearAllMocks();
   })
   describe("startGame", () => {
+    const notifyGameStartedSpy = jest.spyOn(notificationService, "notifyGameStarted");
     it("should start a game with state pending if only one player", () => {
       const gameState = startGame('test@mail.com');
       expect(gameState.gameStatus).toBe(GameStatus.PENDING);
@@ -21,10 +27,11 @@ describe("Game Management Service", () => {
     });
 
     it("should start a game with state in progress if two players joined", () => {
-      startGame("test@gmail.com")
+      startGame("test@gmail.com");
       const gameState = startGame('test2@mail.com');
       expect(gameState.gameStatus).toBe(GameStatus.IN_PROGRESS);
       expect(gameState.isTurn).toBe(false);
+      expect(notifyGameStartedSpy).toBeCalledTimes(config.numberOfPlayersPerGame)
     });
   });
 

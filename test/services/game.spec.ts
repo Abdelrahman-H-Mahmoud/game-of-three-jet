@@ -19,8 +19,7 @@ describe("Game Service", () => {
       const game = createGame(player);
 
       expect(game.id).toBe("fake-uuid");
-      expect(game.player1).toBe(player);
-      expect(game.player2).toBeNull();
+      expect(game.players[0]).toBe(player);
       expect(game.currentPlayerId).toBe(player.id);
       expect(game.gameStatus).toBe(GameStatus.PENDING);
       expect(typeof game.number).toBe("number");
@@ -79,20 +78,26 @@ describe("Game Service", () => {
   });
 
   describe("getGameByPlayerId", () => {
-    it("should return game where player is player1", () => {
+    it("should return game where player is player id", () => {
       const player: Player = { id: "player5", email: "Bob" };
       const game = createGame(player);
 
       expect(getGameByPlayerId(player.id)?.id).toBe(game.id);
     });
 
-    it("should return game where player is player2", () => {
+    it("should return game if there is multiple player", () => {
+      let game: Game;
       const player1: Player = { id: "player6", email: "Charlie" };
       const player2: Player = { id: "player7", email: "David" };
-      const game = assignToGame(player1);
-      assignToGame(player2);
-      expect(getGameByPlayerId(player2.id)?.id).toBe(game.id);
+      game = assignToGame(player1);
+
+      expect(game.players.length).toBe(1);
+
+      game = assignToGame(player2);
+      const foundedGame = getGameByPlayerId(player1.id);
+      expect(game?.id).toBe(foundedGame?.id);
     });
+    
     it("should return undefined for non-existent ID", () => {
       expect(getGameByPlayerId("invalid-id")).toBeUndefined();
     });

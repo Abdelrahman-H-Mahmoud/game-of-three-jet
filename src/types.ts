@@ -12,8 +12,7 @@ export enum GameStatus {
 export type GameStatusType = `${GameStatus}`
 export interface Game {
   id: string;
-  player1: Player | null;
-  player2: Player | null;
+  players: Player[];
   currentPlayerId: string | null;
   number: number;
   gameStatus: GameStatusType;
