@@ -10,6 +10,7 @@ interface gameConnection {
 }
 
 const gameEvents = new EventEmitter();
+
 export enum GAME_EVENTS {
   TURN = "TURN",
   STARTED = "STARTED",
@@ -17,7 +18,7 @@ export enum GAME_EVENTS {
   JOINED = "JOINED"
 }
 
-const subscribers: Record<string, gameConnection[]> = {};
+let subscribers: Record<string, gameConnection[]> = {};
 
 export const subscribeToGameChanges = (gameId: string, playerId: string, req: Request, res: Response) => {
   res.writeHead(200, {
@@ -27,30 +28,30 @@ export const subscribeToGameChanges = (gameId: string, playerId: string, req: Re
   });
   subscribers[gameId] ??= [];
   upSertPlayerToGame(subscribers[gameId], playerId, req, res);
-  sendMessage(res,GAME_EVENTS.JOINED,{message: "Joined The Game"});
+  sendMessage(res, GAME_EVENTS.JOINED, { message: "Joined The Game" });
 
   req.on('close', () => res.end('OK'))
 }
-const sendMessage = (res:Response, event:GAME_EVENTS, data?:any)=>{
+export const sendMessage = (res: Response, event: GAME_EVENTS, data?: any) => {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
 export const notifyPlayer = (gameId: string, playerId: string, event: GAME_EVENTS, data?: Record<string, any>) => {
   const connection = getPlayerConnection(gameId, playerId);
   if (connection) {
-    sendMessage(connection.response,event,data);
+    sendMessage(connection.response, event, data);
     gameEvents.emit(event, { gameId, playerId });
   }
 }
 
-const getPlayerConnection = (gameId: string, playerId: string) => {
+export const getPlayerConnection = (gameId: string, playerId: string) => {
   if (subscribers[gameId]) {
     const playerConnection = subscribers[gameId].find(x => x.playerId === playerId);
     return playerConnection?.connection;
   }
   return null;
 }
-export const upSertPlayerToGame = (gameConnections: gameConnection[], playerId: string, req: Request, res: Response) => {
+const upSertPlayerToGame = (gameConnections: gameConnection[], playerId: string, req: Request, res: Response) => {
   // to check if there is already connection for the player in case of restart
   const foundPlayer = gameConnections.find(g => g.playerId === playerId);
   if (!foundPlayer) {
@@ -85,7 +86,7 @@ gameEvents.on(GAME_EVENTS.FINISHED, ({ gameId, playerId }) => {
     if (connection) {
       connection.response.end();
       subscribers[gameId] = gameConnections.filter((p) => p.playerId !== playerId);
-      if(subscribers[gameId].length === 0){
+      if (subscribers[gameId].length === 0) {
         console.log("deleting Game Connection")
         //delete the whole game connection if no player connection
         delete subscribers[gameId];
@@ -93,3 +94,7 @@ gameEvents.on(GAME_EVENTS.FINISHED, ({ gameId, playerId }) => {
     }
   }
 })
+
+export const flushSubscribers = () => {
+  subscribers = {};
+}

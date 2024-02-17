@@ -45,6 +45,14 @@ describe("Game Service", () => {
       expect(assignedGame.gameStatus).toBe(GameStatus.PENDING);
     });
 
+    it("should return same game for same player", () => {
+      const player: Player = { id: "player1", email: "John Doe" };
+      const player2: Player = { id: "player1", email: "John Doe" };
+      const assignedGame1 = assignToGame(player);
+      const assignedGame2 = assignToGame(player);
+      expect(assignedGame1).toMatchObject(assignedGame2);
+    });
+
     it("should assign players to available game", () => {
       const player: Player = { id: "player1", email: "Jane Doe" };
       const player2: Player = { id: "player2", email: "Jane" };
