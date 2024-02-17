@@ -1,5 +1,5 @@
 import { config } from "../config";
-import { GameState, GameStatus, Player } from "../types";
+import { Game, GameState, GameStatus, Player } from "../types";
 import { assignToGame, changeGameStatus, getGameById, getGameByPlayerId } from "./game";
 import { GAME_EVENTS, notifyPlayer } from "./gameNotification";
 import { createPlayer } from "./player"
@@ -24,12 +24,7 @@ export const makeMove = (number: number, gameId: string, playerId: string): Game
   if (game?.currentPlayerId === playerId) {
     game.number = calculate(game.number, number);
     if (isGameFinished(game.number)) {
-      game.currentPlayerId = null;
-      changeGameStatus(game,GameStatus.FINISHED);
-      game.winnerId = playerId;
-      game.players.forEach(p => {
-        notifyPlayer(game.id, p.id, GAME_EVENTS.FINISHED, { number: game.number, isWinner: p.id === game.winnerId })
-      });
+      handleGameFinished(game,playerId);
     }
     else {
       game.currentPlayerId = getNextPlayerTurn(game.players, game.currentPlayerId).id
@@ -45,11 +40,6 @@ export const makeMove = (number: number, gameId: string, playerId: string): Game
   }
 }
 
-export const getNextPlayerTurn = (players: Player[], currentPlayerId: string): Player => {
-  const index = players.findIndex(p => p.id === currentPlayerId);
-  return index === players.length - 1 ? players[0] : players[index + 1];
-}
-
 export const getGameState = (playerId: string): GameState | null => {
   const game = getGameByPlayerId(playerId);
   if (!game) {
@@ -63,6 +53,20 @@ export const getGameState = (playerId: string): GameState | null => {
     isTurn: game.currentPlayerId === playerId,
     winnerId: game.winnerId
   }
+}
+
+const getNextPlayerTurn = (players: Player[], currentPlayerId: string): Player => {
+  const index = players.findIndex(p => p.id === currentPlayerId);
+  return index === players.length - 1 ? players[0] : players[index + 1];
+}
+
+const handleGameFinished = (game:Game,winnerId:string)=>{
+  game.currentPlayerId = null;
+  changeGameStatus(game,GameStatus.FINISHED);
+  game.winnerId = winnerId;
+  game.players.forEach(p => {
+    notifyPlayer(game.id, p.id, GAME_EVENTS.FINISHED, { number: game.number, isWinner: p.id === game.winnerId })
+  });
 }
 
 const isGameFinished = (number: number) => {
