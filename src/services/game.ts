@@ -1,4 +1,3 @@
-import { config } from "../config";
 import { Game, GameStatus, Player } from "../types";
 import { generateNumer } from "../utils/generateNumber";
 import { generateUUID } from "../utils/uuid";
@@ -12,8 +11,7 @@ export const assignToGame = (player: Player) => {
     return game;
   }
   game.players.push(player);
-  if (game.players.length === config.numberOfPlayersPerGame)
-    game.gameStatus = GameStatus.IN_PROGRESS;
+
   return game;
 }
 
@@ -40,6 +38,10 @@ export const getGameById = (id: string): Game | undefined => {
 
 export const getGameByPlayerId = (playerId: string): Game | undefined => {
   return games.find(x => x.players.find((p) => p.id === playerId));
+}
+
+export const changeGameStatus = (game: Game, newStatus: GameStatus) => {
+  game.gameStatus = newStatus;
 }
 
 export const flushGames = () => {

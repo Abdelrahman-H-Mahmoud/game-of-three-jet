@@ -36,14 +36,6 @@ describe("Game Service", () => {
     it("should return undefined if no game created", () => {
       expect(getAvailableGame()).toBeUndefined();
     });
-
-    it("should return undefined if no available game", () => {
-      const player: Player = { id: "player3", email: "Mark" };
-      const playe2: Player = { id: "player3", email: "Mark2" };
-      assignToGame(player);
-      assignToGame(playe2);
-      expect(getAvailableGame()).toBeUndefined();
-    });
   });
 
   describe("assignToGame", () => {
@@ -53,14 +45,13 @@ describe("Game Service", () => {
       expect(assignedGame.gameStatus).toBe(GameStatus.PENDING);
     });
 
-    it("should assign players to available game and return inProgress", () => {
+    it("should assign players to available game", () => {
       const player: Player = { id: "player1", email: "Jane Doe" };
       const player2: Player = { id: "player2", email: "Jane" };
       const assignedGame = assignToGame(player);
       const assignedGame2 = assignToGame(player2);
       expect(assignedGame).not.toBeUndefined();
       expect(assignedGame.id).toEqual(assignedGame2.id);
-      expect(assignedGame.gameStatus).toBe(GameStatus.IN_PROGRESS);
     });
   });
 

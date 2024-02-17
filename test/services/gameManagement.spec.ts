@@ -2,7 +2,7 @@ import { flushGames } from "../../src/services/game";
 import { getGameState, makeMove, startGame } from "../../src/services/gameManagement";
 import { flushPlayers } from "../../src/services/player";
 import { GameStatus } from "../../src/types";
-import * as notificationService from "../../src/services/notification"
+import * as notificationService from "../../src/services/gameNotification"
 import { config } from "../../src/config";
 jest.mock("../../src/utils/generateNumber", () => {
   return {
@@ -10,28 +10,36 @@ jest.mock("../../src/utils/generateNumber", () => {
   }
 });
 
-jest.mock("../../src/services/notification");
+jest.mock("../../src/services/gameNotification");
 
 describe("Game Management Service", () => {
+  const mockedConfig = {
+    ...config
+  };
+  mockedConfig.numberOfPlayersPerGame = 2;
+  const { numberOfPlayersPerGame } = mockedConfig
   beforeEach(() => {
     flushGames();
     flushPlayers();
     jest.clearAllMocks();
   })
   describe("startGame", () => {
-    const notifyGameStartedSpy = jest.spyOn(notificationService, "notifyGameStarted");
-    it("should start a game with state pending if only one player", () => {
+    beforeEach(() => {
+
+    })
+    const notifyGameStartedSpy = jest.spyOn(notificationService, "notifyPlayer");
+    it("should start a game with state pending if number of player less than the configuration", () => {
       const gameState = startGame('test@mail.com');
       expect(gameState.gameStatus).toBe(GameStatus.PENDING);
       expect(gameState.isTurn).toBe(true);
     });
 
-    it("should start a game with state in progress if two players joined", () => {
+    it("should start a game with state in progress number of player same as configuration", () => {
       startGame("test@gmail.com");
       const gameState = startGame('test2@mail.com');
       expect(gameState.gameStatus).toBe(GameStatus.IN_PROGRESS);
       expect(gameState.isTurn).toBe(false);
-      expect(notifyGameStartedSpy).toBeCalledTimes(config.numberOfPlayersPerGame)
+      expect(notifyGameStartedSpy).toBeCalledTimes(numberOfPlayersPerGame)
     });
   });
 
