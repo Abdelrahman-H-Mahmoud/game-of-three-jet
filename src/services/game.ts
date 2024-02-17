@@ -1,4 +1,5 @@
 import { Game, GameStatus, Player } from "../types";
+import { generateNumer } from "../utils/generateNumber";
 import { generateUUID } from "../utils/uuid";
 
 let games: Game[] = []
@@ -14,6 +15,7 @@ export const assignToGame = (player: Player) => {
   return game;
 }
 
+//A game to be created need at least one player
 export const createGame = (player: Player): Game => {
   const game = {
     id: generateUUID(),
@@ -41,8 +43,4 @@ export const getGameByPlayerId = (playerId: string): Game | undefined => {
 
 export const flushGames = () => {
   games = [];
-}
-
-const generateNumer = (min: number = 1, max: number = 60): number => {
-  return Math.floor(Math.random() * (max - min + 1) + min);
 }
