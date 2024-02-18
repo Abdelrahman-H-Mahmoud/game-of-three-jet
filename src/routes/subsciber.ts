@@ -1,13 +1,20 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { subscribeToGameChanges } from "../services/gameNotification";
 
 const subscribeRouter = Router();
 
 
-subscribeRouter.get("/:gameId/player/:playerId", (req: Request, res: Response) => {
-  const { gameId, playerId } = req.params
-  subscribeToGameChanges(gameId, playerId, req, res);
-})
+export const handleGameSubcribation = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { gameId, playerId } = req.params
+    subscribeToGameChanges(gameId, playerId, req, res);
+  }
+  catch (err) {
+    next(err);
+  }
+}
+
+subscribeRouter.get("/:gameId/player/:playerId",handleGameSubcribation)
 
 
 export default subscribeRouter;
