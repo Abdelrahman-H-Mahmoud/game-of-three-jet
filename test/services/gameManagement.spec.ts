@@ -77,13 +77,15 @@ describe("Game Management Service", () => {
 
       makeMove(1, u1.gameId, u1.playerId);
       makeMove(1, u2.gameId, u2.playerId);
-
       const gameStatePlayer2 = getGameState(u2.playerId);
 
       expect(gameStatePlayer2?.gameStatus).toEqual(GameStatus.FINISHED);
       expect(gameStatePlayer2?.isTurn).toBe(false);
       expect(gameStatePlayer2?.winnerId).toBe(u2.playerId);
       expect(gameStatePlayer2?.winnerId).not.toBe(u1.playerId);
+
+      // 2 times when making move & 2 times when to notify game finished
+      expect(notificationService.notifyPlayer).toBeCalledTimes(4);
 
     })
   })

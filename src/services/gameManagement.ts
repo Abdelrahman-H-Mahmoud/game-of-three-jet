@@ -3,6 +3,7 @@ import { Game, GameState, GameStatus, Player } from "../types";
 import { assignToGame, changeGameStatus, getGameById, getGameByPlayerId } from "./game";
 import { GAME_EVENTS, notifyPlayer } from "./gameNotification";
 import { createPlayer } from "./player"
+import { calculate, getNextPlayerTurn, isGameFinished } from "./utils";
 
 export const startGame = (email: string): GameState => {
   const player = createPlayer(email);
@@ -27,8 +28,11 @@ export const makeMove = (number: number, gameId: string, playerId: string): Game
       handleGameFinished(game,playerId);
     }
     else {
-      game.currentPlayerId = getNextPlayerTurn(game.players, game.currentPlayerId).id
-      notifyPlayer(gameId, game.currentPlayerId ?? "", GAME_EVENTS.TURN, { number: game.number })
+      const curretPlayerTurn = getNextPlayerTurn(game.players, game.currentPlayerId);
+      if(curretPlayerTurn){
+        game.currentPlayerId = curretPlayerTurn.id
+        getNextPlayerTurn(game.players, game.currentPlayerId)
+      }
     }
   }
   return {
@@ -55,10 +59,6 @@ export const getGameState = (playerId: string): GameState | null => {
   }
 }
 
-const getNextPlayerTurn = (players: Player[], currentPlayerId: string): Player => {
-  const index = players.findIndex(p => p.id === currentPlayerId);
-  return index === players.length - 1 ? players[0] : players[index + 1];
-}
 
 const handleGameFinished = (game:Game,winnerId:string)=>{
   game.currentPlayerId = null;
@@ -69,11 +69,3 @@ const handleGameFinished = (game:Game,winnerId:string)=>{
   });
 }
 
-const isGameFinished = (number: number) => {
-  return number <= 1;
-}
-
-const calculate = (currentGameNumber: number, playerMove) => {
-  currentGameNumber += playerMove;
-  return Math.floor(currentGameNumber / 3);
-}
