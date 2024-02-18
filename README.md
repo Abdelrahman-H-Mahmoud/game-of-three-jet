@@ -95,6 +95,12 @@ Make your move.
 
         - If the game is still in progress, notify the next player turn.
 
+## Notes
+- The client terminal is only for testing purpose, it is not designed for production use it is just a throw away code, that handles happy case scenarios from the client side.
+- Some Enahncements can be done in the future, but this is only an mvp to validate the idea.
+    - Check for user in-activity after a specific period.
+    - Use DB storgae instead of in-memory storage.
+
 ## Testing
 
 Run unit tests using:
