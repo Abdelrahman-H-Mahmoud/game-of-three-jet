@@ -31,7 +31,9 @@ export const makeMove = (number: number, gameId: string, playerId: string): Game
       const curretPlayerTurn = getNextPlayerTurn(game.players, game.currentPlayerId);
       if(curretPlayerTurn){
         game.currentPlayerId = curretPlayerTurn.id
-        getNextPlayerTurn(game.players, game.currentPlayerId)
+        notifyPlayer(game.id,curretPlayerTurn.id,GAME_EVENTS.TURN,{
+          number:game.number
+        })
       }
     }
   }
