@@ -1,5 +1,5 @@
 import { config } from "../config";
-import { Game, GameState, GameStatus, Player } from "../types";
+import { Game, GameState, GameStatus } from "../types";
 import { assignToGame, changeGameStatus, getGameById, getGameByPlayerId } from "./game";
 import { GAME_EVENTS, notifyPlayer } from "./gameNotification";
 import { createPlayer } from "./player"
@@ -24,18 +24,7 @@ export const makeMove = (number: number, gameId: string, playerId: string): Game
   }
   if (game?.currentPlayerId === playerId) {
     game.number = calculate(game.number, number);
-    if (isGameFinished(game.number)) {
-      handleGameFinished(game,playerId);
-    }
-    else {
-      const curretPlayerTurn = getNextPlayerTurn(game.players, game.currentPlayerId);
-      if(curretPlayerTurn){
-        game.currentPlayerId = curretPlayerTurn.id
-        notifyPlayer(game.id,curretPlayerTurn.id,GAME_EVENTS.TURN,{
-          number:game.number
-        })
-      }
-    }
+    isGameFinished(game.number) ? handleGameFinished(game) : handleNextPlayerTurn(game)
   }
   return {
     playerId,
@@ -61,13 +50,22 @@ export const getGameState = (playerId: string): GameState | null => {
   }
 }
 
+const handleNextPlayerTurn = (game: Game) => {
+  const curretPlayerTurn = getNextPlayerTurn(game.players, game.currentPlayerId as string);
+  if (curretPlayerTurn) {
+    game.currentPlayerId = curretPlayerTurn.id
+    notifyPlayer(game.id, curretPlayerTurn.id, GAME_EVENTS.TURN, {
+      number: game.number
+    })
+  }
+}
 
-const handleGameFinished = (game:Game,winnerId:string)=>{
+const handleGameFinished = (game: Game) => {
+  const winnerId = game.currentPlayerId as string;
   game.currentPlayerId = null;
-  changeGameStatus(game,GameStatus.FINISHED);
+  changeGameStatus(game, GameStatus.FINISHED);
   game.winnerId = winnerId;
   game.players.forEach(p => {
     notifyPlayer(game.id, p.id, GAME_EVENTS.FINISHED, { number: game.number, isWinner: p.id === game.winnerId })
   });
 }
-
